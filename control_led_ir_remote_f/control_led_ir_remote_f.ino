@@ -22,8 +22,8 @@ uint32_t lastCode = 0;
 unsigned long lastTime = 0;
 
 // —— Wi-Fi ——
-const char* ssid     = "Yahallo :>>>";
-const char* password = "thanhtrong5555";
+const char* ssid     = "DHCN - CSM";
+const char* password = "@Phuc244466666";
 
 // —— MQTT ——
 const char* mqtt_server = "152.42.200.154";
