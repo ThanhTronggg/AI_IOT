@@ -11,9 +11,9 @@ const int LED_PIN_2 = 0;  // LED 2
 const int PIR_PIN = 2;     // PIR sensor
 const int BUZZER_PIN = 13; 
 const int IR_PIN_1 = 14;   // IR sensor 1 (GPIO14, D5 trên NodeMCU)
-const int IR_PIN_2 = 15;   // IR sensor 2 (GPIO15, D8 trên NodeMCU)
+const int IR_PIN_2 = 20;   // IR sensor 2 (GPIO15, D8 trên NodeMCU)
 const int MQ135_PIN = A0;  // MQ135 gas sensor
-const int FLAME_PIN = 3;   // Flame sensor
+const int FLAME_PIN = 16;   // Flame sensor
 const int DHT_PIN = 4;     // Chân Data của DHT11 (GPIO4, D2 trên NodeMCU)
 DHT dht(DHT_PIN, DHT11);
 
@@ -31,16 +31,16 @@ unsigned long lastIrRead = 0;
 unsigned long lastMsg = 0;
 const unsigned long DHT_INTERVAL = 2000;   // Đọc DHT mỗi 2s
 const unsigned long IR_INTERVAL = 500;     // Đọc IR mỗi 0.5s
-const unsigned long MQTT_INTERVAL = 5000;  // Gửi dữ liệu lên MQTT mỗi 5s
+const unsigned long MQTT_INTERVAL = 10000;  // Gửi dữ liệu lên MQTT mỗi 5s
 
 // 🟢 **Cấu hình kết nối WiFi**
-const char* ssid = "Yahallo :>>>"; 
-const char* password = "thanhtrong5555";
+const char* ssid = "DHCN - CSM"; 
+const char* password = "@Phuc244466666";
 
 // 🟢 **Cấu hình MQTT**
-const char* mqtt_server = "ateamiuh.me";
-const char* mqtt_username = "";  // Thay bằng Username của bạn
-const char* mqtt_password = "";  // Thay bằng Key của bạn
+const char* mqtt_server = "152.42.200.154";
+const char* mqtt_username = "trong";  // Thay bằng Username của bạn
+const char* mqtt_password = "trong";  // Thay bằng Key của bạn
 const char* sensor_topic = "data_xyz";
 
 WiFiClient espClient;
@@ -182,9 +182,11 @@ void loop() {
     lastDhtRead = now;
 
     flameState = digitalRead(FLAME_PIN);
+    Serial.print(F("🔥 Flame Sensor (Raw): "));
+    Serial.println(flameState);  // In giá trị thô để debug
     Serial.print(F("🔥 Flame Sensor: "));
-    Serial.println(flameState == LOW ? "Fire" : "NoFire");
-    if (flameState == LOW) {
+    Serial.println(flameState == HIGH ? "Fire" : "NoFire");  // Đổi logic: HIGH là có lửa
+    if (flameState == HIGH) {
       Serial.println("🚨 Fire detected!");
       digitalWrite(LED_PIN_2, HIGH);
     } else {
