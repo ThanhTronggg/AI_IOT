@@ -73,17 +73,25 @@ void setup_wifi() {
 }
 
 // 🟢 **Hàm nhận dữ liệu từ MQTT**
-void callback(char* topic, byte* payload, unsigned int length) { 
-  Serial.print("📩 Received message [");
-  Serial.print(topic);
-  Serial.print("]: ");
-
+void callback(char* topic, byte* payload, unsigned int length) {
+  // ---- lấy topic & payload thành chuỗi ----
   String message;
-  for (int i = 0; i < length; i++) { 
-    message += (char)payload[i];
+  for (unsigned int i = 0; i < length; i++) message += (char)payload[i];
+  message.trim();                                    // loại space / \r\n
+
+  Serial.printf("📩 Received [%s]: %s\n", topic, message.c_str());
+  
+  // ---- chỉ xử lý khi topic = "pipe" ----
+  if (strcmp(topic, "pipe") == 0) {                  // so sánh nội dung
+    bool alarmOn = message.equalsIgnoreCase("true") ||
+                   message.equalsIgnoreCase("1")    ||
+                   message.equalsIgnoreCase("on");
+
+    digitalWrite(BUZZER_PIN, alarmOn ? HIGH : LOW);
+    Serial.println(alarmOn ? "🔔 Pipe ALARM ON" : "🔕 Pipe ALARM OFF");
   }
-  Serial.println(message);
 }
+
 
 // 🟢 **Hàm kết nối lại MQTT**
 void reconnect() { 
@@ -98,6 +106,7 @@ void reconnect() {
 
     if (client.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
       Serial.println("✅ Connected to MQTT!");
+      client.subscribe("pipe");   
     } else {
       Serial.print("❌ Failed, rc=");
       Serial.print(client.state());
@@ -198,11 +207,11 @@ void loop() {
     Serial.println(pirState == HIGH ? "Motion" : "NoMotion");
     if (pirState == HIGH) {
       digitalWrite(LED_PIN_1, HIGH);
-      digitalWrite(BUZZER_PIN, HIGH);
+      // digitalWrite(BUZZER_PIN, HIGH);
       Serial.println("🚨 Motion detected!");
     } else {
       digitalWrite(LED_PIN_1, LOW);
-      digitalWrite(BUZZER_PIN, LOW);
+      // digitalWrite(BUZZER_PIN, LOW);
     }
 
     int gasRaw = analogRead(MQ135_PIN);
